@@ -21,13 +21,18 @@ export default async function Login(req, res) {
     });
 
     if (!user) throw Error("user not found");
+    const hashPassword = user.password;
 
-    const checkPassword = await bcrypt.compare(password, user.password);
+    const checkPassword = await bcrypt.compare(password, hashPassword);
     if (!checkPassword) throw Error("wrong password");
 
-    const token = jwt.sign({ username, password }, process.env.PRIVATE_KEY, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { username, hashPassword },
+      process.env.PRIVATE_KEY,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     result = { message: "success", token };
   } catch (error) {

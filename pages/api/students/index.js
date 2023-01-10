@@ -1,5 +1,5 @@
 import connect from "libs/database";
-import { wrongMethod } from "utils";
+import { wrongMethod, authApi } from "utils";
 import StudentModel from "models/StudentModel";
 
 export default async function Students(req, res) {
@@ -9,6 +9,8 @@ export default async function Students(req, res) {
   let result = {};
 
   try {
+    await authApi(req);
+
     await connect();
     const students = await StudentModel.find();
     result = { message: "success", data: students };
