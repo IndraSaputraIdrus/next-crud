@@ -1,8 +1,9 @@
 import connect from "libs/database";
+import { wrongMethod } from "utils";
 import StudentModel from "models/StudentModel";
 
 export default async function Students(req, res) {
-  if (req.method !== "GET") return res.status(405).end();
+  if (req.method !== "GET") return wrongMethod(res);
 
   let status = 200;
   let result = {};

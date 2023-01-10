@@ -1,8 +1,9 @@
 import connect from "libs/database";
 import StudentModel from "models/StudentModel";
+import { wrongMethod } from "utils";
 
 export default async function AddStudent(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
+  if (req.method !== "POST") return wrongMethod(res);
 
   const { name, email } = req.body;
   if (!name) return res.status(400).end();

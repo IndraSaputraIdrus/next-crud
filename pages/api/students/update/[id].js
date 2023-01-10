@@ -1,15 +1,15 @@
 import connect from "libs/database";
 import StudentModel from "models/StudentModel";
+import { bodyEmpty, wrongMethod } from "utils";
 
 export default async function UpdateStudent(req, res) {
-  if (req.method !== "PUT") return res.status(405).end();
+  if (req.method !== "PUT") return wrongMethod(res);
 
   const { id } = req.query;
   if (!id) return res.status(400).end();
 
   const { name, email } = req.body;
-  if (!name) return res.status(400).end();
-  if (!email) return res.status(400).end();
+  bodyEmpty([name, email], res);
 
   let status = 200;
   let result = {};

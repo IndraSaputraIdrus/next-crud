@@ -2,8 +2,8 @@ import connect from "libs/database";
 import StudentModel from "models/StudentModel";
 import { wrongMethod } from "utils";
 
-export default async function DeleteStudent(req, res) {
-  if (req.method !== "DELETE") return wrongMethod(res);
+export default async function GetStudentById(req, res) {
+  if (req.method !== "GET") return wrongMethod(res);
 
   const { id } = req.query;
   if (!id) return res.status(400).end();
@@ -13,15 +13,11 @@ export default async function DeleteStudent(req, res) {
 
   try {
     await connect();
-    const deleteStudent = await StudentModel.deleteOne({
+    const student = await StudentModel.findOne({
       _id: id,
     });
 
-    if (deleteStudent.deletedCount === 0) {
-      throw new Error("data not found");
-    }
-
-    result = { message: "success", data: deleteStudent };
+    result = { message: "success", data: student };
   } catch (error) {
     status = 400;
     console.log(error);
