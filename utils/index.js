@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 export function wrongMethod(res) {
   return res.status(405).end();
 }
@@ -21,5 +23,19 @@ export function passwordMatch(password, confirmPassword) {
     } else {
       resolve(true);
     }
+  });
+}
+export function authApi(req) {
+  return new Promise((resolve, reject) => {
+    const authorization = req.headers.authorization;
+    if (!authorization) return reject(new Error("not authorized"));
+
+    const splitAuth = authorization.split(" ");
+    const tokenType = splitAuth[0];
+    if (tokenType !== "Bearer") return reject(new Error("Invalid token type"));
+
+    const token = jwt.verify(splitAuth[1], process.env.PRIVATE_KEY);
+
+    return resolve(token);
   });
 }

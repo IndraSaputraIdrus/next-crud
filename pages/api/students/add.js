@@ -1,6 +1,6 @@
 import connect from "libs/database";
 import StudentModel from "models/StudentModel";
-import { wrongMethod } from "utils";
+import { authApi, wrongMethod } from "utils";
 
 export default async function AddStudent(req, res) {
   if (req.method !== "POST") return wrongMethod(res);
@@ -13,6 +13,8 @@ export default async function AddStudent(req, res) {
   let result = {};
 
   try {
+    await authApi(req);
+
     await connect();
     const newStudent = await StudentModel.create({
       name,

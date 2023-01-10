@@ -1,6 +1,6 @@
 import connect from "libs/database";
 import StudentModel from "models/StudentModel";
-import { bodyEmpty, wrongMethod } from "utils";
+import { authApi, bodyEmpty, wrongMethod } from "utils";
 
 export default async function UpdateStudent(req, res) {
   if (req.method !== "PUT") return wrongMethod(res);
@@ -15,6 +15,8 @@ export default async function UpdateStudent(req, res) {
   let result = {};
 
   try {
+    await authApi(req);
+
     await connect();
     const updateStudent = await StudentModel.updateOne(
       {
