@@ -1,34 +1,46 @@
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { fetchUrl } from "utils";
 
-export default function Home() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kcmFpbiIsImhhc2hQYXNzd29yZCI6IiQyYiQxMCRRUUIudjJLZmVITjAwa2duNUFmREd1b2ljZG1MZWdUanp4UU5oa0hJenluLmV1VTVvWDYvRyIsImlhdCI6MTY3Mzk2NDM5OSwiZXhwIjoxNjc0NTY5MTk5fQ.tOahd3bU1ZAyCj4hn1l3SBp7TcHk7et76KWZvCf-Hyw";
-
-  useEffect(() => {
-    const getAllData = async () => {
-      const req = await fetch("/api/students", {
+export async function getServerSideProps() {
+  const getData = async () => {
+    try {
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kcmFpbiIsImhhc2hQYXNzd29yZCI6IiQyYiQxMCRRUUIudjJLZmVITjAwa2duNUFmREd1b2ljZG1MZWdUanp4UU5oa0hJenluLmV1VTVvWDYvRyIsImlhdCI6MTY3Mzk2NDM5OSwiZXhwIjoxNjc0NTY5MTk5fQ.tOahd3bU1ZAyCj4hn1l3SBp7TcHk7et76KWZvCf-Hyw";
+      const options = {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      };
+      const res = await fetch(`${fetchUrl()}/api/students`, options);
 
-      const res = await req.json();
+      const result = await res.json();
 
-      if (res.message !== "success") {
-        return setData(res);
-      }
+      return result;
+    } catch (err) {
+      return err;
+    }
+  };
 
-      setData(res.data);
-      setLoading(false);
-    };
+  const resultData = await getData();
 
-    getAllData();
+  return {
+    props: {
+      data: resultData,
+    },
+  };
+}
+
+export default function Home(props) {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    console.log(props.data.data);
+    setData(props.data.data);
+    setLoading(false);
   }, []);
   return (
     <>
