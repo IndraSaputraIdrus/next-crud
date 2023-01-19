@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const token =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kcmFpbiIsImhhc2hQYXNzd29yZCI6IiQyYiQxMCRRUUIudjJLZmVITjAwa2duNUFmREd1b2ljZG1MZWdUanp4UU5oa0hJenluLmV1VTVvWDYvRyIsImlhdCI6MTY3Mzk2NDM5OSwiZXhwIjoxNjc0NTY5MTk5fQ.tOahd3bU1ZAyCj4hn1l3SBp7TcHk7et76KWZvCf-Hyw";
@@ -24,6 +25,7 @@ export default function Home() {
       }
 
       setData(res.data);
+      setLoading(false);
     };
 
     getAllData();
@@ -55,10 +57,10 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody>
-                {data.message ? (
+                {data.message || loading ? (
                   <tr>
-                    <td colSpan="3" className="text-center">
-                      {data.message}
+                    <td colSpan="4" className="py-5 text-center">
+                      {data.message || "loading...."}
                     </td>
                   </tr>
                 ) : (
