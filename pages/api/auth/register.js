@@ -23,7 +23,7 @@ export default async function Register(req, res) {
     const findUsername = await UsersModel.find({
       username,
     });
-    if (findUsername) throw Error("Username already exists");
+    if (findUsername.length > 0) throw Error("Username already exists");
 
     const user = await UsersModel.create({
       username,

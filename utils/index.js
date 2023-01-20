@@ -1,3 +1,4 @@
+import Cookies from "js-cookie";
 import jwt from "jsonwebtoken";
 
 export function wrongMethod(res) {
@@ -44,4 +45,27 @@ export function fetchUrl() {
   return process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
+}
+
+export function checkToken(token) {
+  return jwt.verify(token, process.env.PRIVATE_KEY);
+}
+
+export function authPages(ctx) {
+  const { token } = ctx.req.cookies;
+  try {
+    checkToken(token);
+    ctx.res.writeHead(302, { Location: "/" }).end();
+  } catch (err) {
+    return new Error(err.message);
+  }
+}
+
+export function unAuthPages(ctx) {
+  const { token } = ctx.req.cookies;
+  try {
+    checkToken(token);
+  } catch (err) {
+    ctx.res.writeHead(302, { Location: "/auth/login" }).end();
+  }
 }

@@ -1,13 +1,20 @@
+import Cookies from "js-cookie";
+import Router from "next/router";
 import Head from "next/head";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { fetchUrl } from "utils";
+import { unAuthPages, fetchUrl } from "utils";
 
-export async function getServerSideProps() {
+export async function getServerSideProps(ctx) {
+  try {
+    unAuthPages(ctx);
+  } catch (err) {
+    console.log(err);
+  }
+
   const getData = async () => {
     try {
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im5kcmFpbiIsImhhc2hQYXNzd29yZCI6IiQyYiQxMCRRUUIudjJLZmVITjAwa2duNUFmREd1b2ljZG1MZWdUanp4UU5oa0hJenluLmV1VTVvWDYvRyIsImlhdCI6MTY3Mzk2NDM5OSwiZXhwIjoxNjc0NTY5MTk5fQ.tOahd3bU1ZAyCj4hn1l3SBp7TcHk7et76KWZvCf-Hyw";
+      const { token } = ctx.req.cookies;
       const options = {
         method: "GET",
         headers: {
@@ -37,9 +44,13 @@ export default function Home(props) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const logoutHandler = () => {
+    Cookies.remove("token", { path: "" });
+    Router.push("/auth/login");
+  };
+
   useEffect(() => {
-    console.log(props.data.data);
-    setData(props.data.data);
+    setData(props.data.data || props.data);
     setLoading(false);
   }, []);
   return (
@@ -53,52 +64,67 @@ export default function Home(props) {
       <main>
         <div className="container mx-auto">
           <div className="py-5 px-2">
+            <button
+              className="bg-rose-500 px-3 py-2 mr-3 hover:bg-rose-600"
+              onClick={logoutHandler}
+            >
+              Logout
+            </button>
             <Link
               href="/add"
               className="bg-cyan-500 text-white w-52 text-center py-3 inline-block font-bold mb-3 rounded-md hover:bg-cyan-600"
             >
               Add Data
             </Link>
-            <table className="w-full p-2 border">
-              <thead>
-                <tr className="bg-slate-800 text-white text-left">
-                  <th className="w-1/4 px-3 py-2">No</th>
-                  <th className="w-1/4 px-3 py-2">Name</th>
-                  <th className="w-1/4 px-3 py-2">Email</th>
-                  <th className="w-1/4 px-3 py-2">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.message || loading ? (
-                  <tr>
-                    <td colSpan="4" className="py-5 text-center">
-                      {data.message || "loading...."}
-                    </td>
-                  </tr>
-                ) : (
-                  data.map((student, index) => (
-                    <tr
-                      key={student._id}
-                      className={`${
-                        index === data.length - 1 ? "" : "border-b"
-                      } ${index % 2 === 0 ? "bg-gray-300" : ""}`}
-                    >
-                      <td className="px-3 py-2 truncate">{index + 1}</td>
-                      <td className="px-3 py-2 truncate">{student.name}</td>
-                      <td className="px-3 py-2 truncate">{student.email}</td>
-                      <td className="px-3 py-2 flex gap-2 text-sm text-white items-center">
-                        <button className="px-3 py-1 bg-green-500 rounded-full hover:bg-green-600">
-                          Edit
-                        </button>
-                        <button className="px-3 py-1 bg-red-500 rounded-full hover:bg-red-600">
-                          Remove
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+
+            <div className="bg-slate-700 text-slate-300 flex text-lg items-center text-center">
+              <div className="px-3 py-2 w-[10%] border-r border-slate-600">
+                No
+              </div>
+              <div className="px-3 py-2 w-[45%] md:w-[30%] border-r border-slate-600">
+                Name
+              </div>
+              <div className="px-3 py-2 md:w-[20%] border-r border-slate-600 hidden md:block">
+                Email
+              </div>
+              <div className="px-3 py-2 w-[50%] md:w-[40%]">Actions</div>
+            </div>
+
+            {data.message || loading ? (
+              <div>
+                <div className="w-full py-5 text-center">
+                  {data.message || "loading...."}
+                </div>
+              </div>
+            ) : (
+              data.map((student, index) => (
+                <div
+                  key={student._id}
+                  className={`text-slate-800 flex items-center ${
+                    index === data.length - 1 ? "" : "border-b"
+                  } ${index % 2 === 0 ? "bg-gray-300" : "bg-gray-200"}`}
+                >
+                  <div className="truncate px-3 py-2 w-[10%]">{index + 1}</div>
+                  <div className="w-[40%] truncate px-3 py-2 md:w-[30%]">
+                    {student.name}
+                  </div>
+                  <div className="hidden truncate px-3 py-2 md:block sm:w-[20%]">
+                    {student.email}
+                  </div>
+                  <div className="w-[50%] md:w-[40%] px-3 py-2 flex flex-wrap gap-2 text-sm text-white items-center justify-center">
+                    <button className="px-3 py-1 bg-orange-500 rounded-full hover:bg-orange-600">
+                      Details
+                    </button>
+                    <button className="px-3 py-1 bg-green-500 rounded-full hover:bg-green-600">
+                      Edit
+                    </button>
+                    <button className="px-3 py-1 bg-red-500 rounded-full hover:bg-red-600">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </main>
